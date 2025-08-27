@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Simple STOMP Worker</title>
+</head>
+<body>
+    <h1>Simple STOMP Worker Test</h1>
+    <div id="status">Ready</div>
+    <div id="messages" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin: 10px 0;"></div>
+    
+    <button onclick="testWorker()">Test Worker</button>
+    <button onclick="testStompConnection()">Test STOMP Connection</button>
+    <button onclick="clearMessages()">Clear</button>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+        let worker = null;
+        let port = null;
+
+        function log(message) {
+            console.log(message);
+            const div = document.createElement('div');
+            div.innerHTML = new Date().toLocaleTimeString() + ': ' + message;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function clearMessages() {
+            messagesDiv.innerHTML = '';
+        }
+
+        function initWorker() {
+            if (worker) return;
+            
+            try {
+                log('Initializing SharedWorker...');
+                worker = new SharedWorker('/assets/simple-stomp-worker.js', 'simple-stomp-worker');
+                port = worker.port;
+                
+                port.onmessage = (event) => {
+                    log('✅ Worker response: ' + JSON.stringify(event.data));
+                };
+                
+                port.onmessageerror = (error) => {
+                    log('❌ Worker message error: ' + error);
+                };
+                
+                port.start();
+                log('SharedWorker initialized');
+                
+            } catch (error) {
+                log('❌ Failed to initialize SharedWorker: ' + error);
+            }
+        }
+
+        function testWorker() {
+            log('Testing SharedWorker basic functionality...');
+            initWorker();
+            
+            if (!port) {
+                log('❌ No worker port available');
+                return;
+            }
+            
+            const testMessage = {
+                id: 'test-' + Date.now(),
+                type: 'test',
+                payload: { 
+                    message: 'Hello from test',
+                    timestamp: new Date().toISOString()
+                }
+            };
+            
+            log('📤 Sending test message: ' + JSON.stringify(testMessage));
+            port.postMessage(testMessage);
+            statusDiv.innerHTML = 'Test message sent';
+        }
+
+        function testStompConnection() {
+            log('Testing STOMP connection...');
+            initWorker();
+            
+            if (!port) {
+                log('❌ No worker port available');
+                return;
+            }
+            
+            const connectMessage = {
+                id: 'connect-' + Date.now(),
+                type: 'connect',
+                payload: {
+                    url: 'ws://localhost:8080',
+                    clientId: 'SIMPLE_TEST_CLIENT',
+                    reconnectDelay: 5000,
+                    heartbeatIncoming: 10000,
+                    heartbeatOutgoing: 10000,
+                    debug: true
+                }
+            };
+            
+            log('📤 Sending STOMP connect: ' + JSON.stringify(connectMessage));
+            port.postMessage(connectMessage);
+            statusDiv.innerHTML = 'STOMP connection initiated';
+        }
+
+        // Auto-initialize on load
+        window.onload = function() {
+            log('Page loaded, ready for testing');
+        };
+    </script>
+</body>
+</html>

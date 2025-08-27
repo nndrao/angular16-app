@@ -1,0 +1,300 @@
+/* AG Grid styling - themes imported in global styles.css */
+
+/* Container styling */
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Header styling */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  font-weight: 300;
+}
+
+.header p {
+  margin: 0;
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* Compact Statistics Bar */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 50px;
+  flex-wrap: wrap;
+}
+
+.stats-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 0 15px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stats-group:last-child {
+  border-right: none;
+  margin-left: auto;
+}
+
+.stat-compact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-icon {
+  font-size: 1.2rem;
+  margin-right: 4px;
+}
+
+.stat-text {
+  color: white;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.stat-label-compact {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value-compact {
+  color: white;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.stat-value-compact.high-rate {
+  color: #FFD700;
+  animation: pulse 1s infinite;
+}
+
+/* Mini Progress Bar */
+.progress-mini {
+  width: 60px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill-mini {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  transition: width 0.3s ease;
+}
+
+/* Compact Buttons */
+.btn-compact {
+  padding: 5px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-compact:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-compact:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-compact.btn-primary {
+  background: rgba(40, 167, 69, 0.8);
+  border-color: rgba(40, 167, 69, 0.3);
+}
+
+.btn-compact.btn-secondary {
+  background: rgba(220, 53, 69, 0.8);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #545b62;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+  background-color: #138496;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background-color: #e0a800;
+}
+
+/* Error Panel */
+.error-panel {
+  padding: 12px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+/* AG Grid container styling */
+.ag-theme-quartz {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Cell Flashing Customization */
+/* Flash animation for value increases */
+.ag-theme-quartz .ag-cell-data-changed {
+  background-color: #90EE90 !important; /* Light green flash */
+}
+
+.ag-theme-quartz .ag-cell-data-changed-up {
+  background-color: #50C878 !important; /* Emerald green for increases */
+}
+
+.ag-theme-quartz .ag-cell-data-changed-down {
+  background-color: #FF6B6B !important; /* Soft red for decreases */
+}
+
+/* Enhanced flashing for specific columns */
+.ag-theme-quartz .ag-cell.ag-cell-value[col-id="marketValue"].ag-cell-data-changed {
+  background-color: #FFD700 !important; /* Gold flash for market value changes */
+}
+
+.ag-theme-quartz .ag-cell.ag-cell-value[col-id="pnl"].ag-cell-data-changed-up {
+  background-color: #00FF00 !important; /* Bright green for P&L increases */
+}
+
+.ag-theme-quartz .ag-cell.ag-cell-value[col-id="pnl"].ag-cell-data-changed-down {
+  background-color: #FF4444 !important; /* Bright red for P&L decreases */
+}
+
+/* Transition for smooth flashing */
+.ag-theme-quartz .ag-cell {
+  transition: background-color 0.5s ease-in-out;
+}
+
+/* Pulse animation for high rate */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+  }
+
+  .stats-bar {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .stats-group {
+    padding: 0 8px;
+    gap: 8px;
+  }
+
+  .stats-group:last-child {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .stat-label-compact {
+    font-size: 0.7rem;
+  }
+
+  .stat-value-compact {
+    font-size: 0.85rem;
+  }
+
+  .btn-compact {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+
+  .ag-theme-quartz {
+    height: calc(100vh - 200px) !important;
+  }
+}

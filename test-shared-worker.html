@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test SharedWorker</title>
+</head>
+<body>
+    <h1>SharedWorker Test</h1>
+    <div id="status">Testing...</div>
+    <div id="messages"></div>
+    <button onclick="testWorker()">Test Worker</button>
+    <button onclick="testStompConnection()">Test STOMP Connection</button>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+
+        function log(message) {
+            console.log(message);
+            messagesDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        function testWorker() {
+            log('Testing SharedWorker...');
+            
+            try {
+                const worker = new SharedWorker('/assets/stomp-worker.js', 'stomp-client-worker');
+                const port = worker.port;
+                
+                port.onmessage = (event) => {
+                    log('Worker message: ' + JSON.stringify(event.data));
+                };
+                
+                port.onmessageerror = (error) => {
+                    log('Worker message error: ' + error);
+                };
+                
+                port.start();
+                
+                // Send a test message
+                const testMessage = {
+                    id: 'test-' + Date.now(),
+                    type: 'config',
+                    payload: { test: true }
+                };
+                
+                log('Sending test message: ' + JSON.stringify(testMessage));
+                port.postMessage(testMessage);
+                
+                statusDiv.innerHTML = 'SharedWorker test sent';
+                
+            } catch (error) {
+                log('SharedWorker test failed: ' + error);
+                statusDiv.innerHTML = 'SharedWorker test failed';
+            }
+        }
+
+        function testStompConnection() {
+            log('Testing STOMP connection via SharedWorker...');
+            
+            try {
+                const worker = new SharedWorker('/assets/stomp-worker.js', 'stomp-client-worker');
+                const port = worker.port;
+                
+                port.onmessage = (event) => {
+                    log('STOMP Worker message: ' + JSON.stringify(event.data));
+                };
+                
+                port.onmessageerror = (error) => {
+                    log('STOMP Worker message error: ' + error);
+                };
+                
+                port.start();
+                
+                // Send a connect message
+                const connectMessage = {
+                    id: 'connect-test-' + Date.now(),
+                    type: 'connect',
+                    payload: {
+                        url: 'ws://localhost:8080',
+                        clientId: 'TEST_CLIENT',
+                        reconnectDelay: 5000,
+                        heartbeatIncoming: 10000,
+                        heartbeatOutgoing: 10000,
+                        debug: true
+                    }
+                };
+                
+                log('Sending STOMP connect message: ' + JSON.stringify(connectMessage));
+                port.postMessage(connectMessage);
+                
+                statusDiv.innerHTML = 'STOMP connection test sent';
+                
+            } catch (error) {
+                log('STOMP connection test failed: ' + error);
+                statusDiv.innerHTML = 'STOMP connection test failed';
+            }
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            setTimeout(testWorker, 1000);
+        };
+    </script>
+</body>
+</html>

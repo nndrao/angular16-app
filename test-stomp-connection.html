@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test STOMP Connection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+    <h1>STOMP Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+
+        function log(message) {
+            console.log(message);
+            messagesDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        // Create STOMP client
+        const client = new StompJs.Client({
+            brokerURL: 'ws://localhost:8080',
+            connectHeaders: {
+                host: 'test-client'
+            },
+            debug: function (str) {
+                log('DEBUG: ' + str);
+            },
+            reconnectDelay: 5000,
+            heartbeatIncoming: 10000,
+            heartbeatOutgoing: 10000,
+            
+            onConnect: function (frame) {
+                log('Connected to STOMP server');
+                statusDiv.innerHTML = 'Connected';
+                
+                // Subscribe to a test topic
+                client.subscribe('/snapshot/positions/TEST_CLIENT', function (message) {
+                    log('Received message: ' + message.body);
+                });
+                
+                // Send a trigger message
+                setTimeout(() => {
+                    log('Sending trigger message...');
+                    client.publish({
+                        destination: '/snapshot/positions/TEST_CLIENT/100',
+                        body: ''
+                    });
+                }, 1000);
+            },
+            
+            onDisconnect: function (frame) {
+                log('Disconnected from STOMP server');
+                statusDiv.innerHTML = 'Disconnected';
+            },
+            
+            onStompError: function (frame) {
+                log('STOMP Error: ' + frame.body);
+                statusDiv.innerHTML = 'Error: ' + frame.body;
+            },
+            
+            onWebSocketError: function (error) {
+                log('WebSocket Error: ' + error);
+                statusDiv.innerHTML = 'WebSocket Error';
+            }
+        });
+
+        // Activate the client
+        client.activate();
+    </script>
+</body>
+</html>

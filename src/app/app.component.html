@@ -1,0 +1,97 @@
+<!-- Angular 16 App with Real-Time Financial Data -->
+<div class="container">
+  <header class="header">
+    <h1>{{ title }} - Real-Time Financial Positions</h1>
+    <p>Powered by AG Grid + STOMP SharedWorker</p>
+  </header>
+
+  <!-- Compact Statistics Bar -->
+  <div class="stats-bar">
+    <!-- Connection Status -->
+    <div class="stats-group connection-group">
+      <div class="stat-compact">
+        <span class="stat-icon" [style.color]="getConnectionStatusColor()">●</span>
+        <span class="stat-text">{{ getConnectionStatusText() }}</span>
+      </div>
+    </div>
+
+    <!-- Snapshot Stats -->
+    <div class="stats-group snapshot-group" *ngIf="!statistics.snapshot.complete">
+      <div class="stat-compact">
+        <span class="stat-label-compact">Snapshot</span>
+        <div class="progress-mini">
+          <div class="progress-fill-mini" [style.width.%]="getSnapshotProgress()"></div>
+        </div>
+        <span class="stat-value-compact">{{ getSnapshotProgress() }}%</span>
+      </div>
+      <div class="stat-compact">
+        <span class="stat-label-compact">Rows</span>
+        <span class="stat-value-compact">{{ statistics.snapshot.receivedRows | number }}</span>
+      </div>
+    </div>
+
+    <!-- Real-time Stats -->
+    <div class="stats-group realtime-group">
+      <div class="stat-compact">
+        <span class="stat-label-compact">Total</span>
+        <span class="stat-value-compact">{{ getTotalMessagesReceived() | number }}</span>
+      </div>
+      <div class="stat-compact">
+        <span class="stat-label-compact">Grid</span>
+        <span class="stat-value-compact">{{ statistics.performance.gridRows | number }}</span>
+      </div>
+      <div class="stat-compact" *ngIf="statistics.snapshot.complete">
+        <span class="stat-label-compact">RT</span>
+        <span class="stat-value-compact">{{ statistics.realtime.messagesReceived | number }}</span>
+      </div>
+      <div class="stat-compact">
+        <span class="stat-label-compact">Rate</span>
+        <span class="stat-value-compact" [class.high-rate]="statistics.realtime.messagesPerSecond > 500">
+          {{ statistics.realtime.messagesPerSecond | number }}/s
+        </span>
+      </div>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="stats-group controls-group">
+      <button
+        class="btn-compact btn-primary"
+        (click)="connectToStomp()"
+        [disabled]="stompState.connected || stompState.connecting">
+        Connect
+      </button>
+      <button
+        class="btn-compact btn-secondary"
+        (click)="disconnectFromStomp()"
+        [disabled]="!stompState.connected">
+        Disconnect
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Display -->
+  <div class="error-panel" *ngIf="stompState.error">
+    <strong>Error:</strong> {{ stompState.error }}
+  </div>
+
+  <!-- The AG Grid component -->
+  <ag-grid-angular
+    class="ag-theme-quartz"
+    style="height: calc(100vh - 240px); width: 100%;"
+    [rowData]="rowData"
+    [columnDefs]="colDefs"
+    [defaultColDef]="defaultColDef"
+    [getRowId]="getRowId"
+    [statusBar]="statusBar"
+    [animateRows]="true"
+    [pagination]="false"
+    [enableRangeSelection]="true"
+    [asyncTransactionWaitMillis]="50"
+    [enableCellChangeFlash]="true"
+    [cellFlashDuration]="500"
+    [cellFadeDuration]="1500"
+    (gridReady)="onGridReady($event)">
+  </ag-grid-angular>
+</div>
+
+<router-outlet></router-outlet>
