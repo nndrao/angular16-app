@@ -86,8 +86,6 @@ class ProviderConnection {
 
     this.isConnecting = true;
     const clientId = this.generateClientId();
-    
-    console.log(`[StompWorkerEnhanced] Connecting provider ${this.providerId} with clientId: ${clientId}`);
 
     try {
       const listenerTopic = this.buildListenerTopic(clientId);
@@ -108,8 +106,6 @@ class ProviderConnection {
 
       // Connection handler
       this.connection.onConnect = () => {
-        console.log(`[StompWorkerEnhanced] Connected successfully for ${this.providerId}`);
-        
         this.statistics.isConnected = true;
         this.statistics.connectionCount++;
         this.statistics.mode = 'snapshot';
@@ -134,7 +130,6 @@ class ProviderConnection {
         });
 
         // Send trigger message
-        console.log(`[StompWorkerEnhanced] Sending trigger to: ${triggerDestination}`);
         this.connection.publish({
           destination: triggerDestination,
           body: ''
@@ -162,7 +157,6 @@ class ProviderConnection {
       };
 
       this.connection.onDisconnect = () => {
-        console.log(`[StompWorkerEnhanced] Disconnected provider ${this.providerId}`);
         this.statistics.isConnected = false;
         this.statistics.disconnectionCount++;
         this.statistics.mode = 'idle';
@@ -192,8 +186,6 @@ class ProviderConnection {
 
       // Check for end token
       if (!this.isSnapshotComplete && this.isEndToken(messageBody)) {
-        console.log(`[StompWorkerEnhanced] Snapshot complete for ${this.providerId}`);
-        
         const duration = Date.now() - this.snapshotStartTime;
         this.isSnapshotComplete = true;
         this.statistics.mode = 'realtime';
@@ -212,10 +204,7 @@ class ProviderConnection {
       try {
         data = JSON.parse(messageBody);
       } catch (parseError) {
-        // Skip non-JSON messages
-        if (!this.isSnapshotComplete) {
-          console.log('[StompWorkerEnhanced] Non-JSON message during snapshot:', messageBody.substring(0, 50));
-        }
+        // Skip non-JSON messages silently
         return;
       }
 
@@ -266,8 +255,6 @@ class ProviderConnection {
 
   // Disconnect from STOMP
   disconnect() {
-    console.log(`[StompWorkerEnhanced] Disconnecting provider ${this.providerId}`);
-    
     if (this.subscription) {
       try {
         this.subscription.unsubscribe();
@@ -325,8 +312,6 @@ self.onconnect = function(event) {
   const port = event.ports[0];
   const portId = generatePortId();
   
-  console.log(`[StompWorkerEnhanced] New port connection: ${portId}`);
-  
   ports.set(portId, port);
   
   port.onmessage = (e) => {
@@ -344,12 +329,10 @@ self.onconnect = function(event) {
 async function handlePortMessage(portId, port, message) {
   const { id, type, providerId, config } = message;
   
-  console.log(`[StompWorkerEnhanced] Handling ${type} from ${portId} for provider ${providerId}`);
-  
   try {
     switch (type) {
       case 'connect':
-        await handleConnect(portId, port, providerId, config);
+        await handleConnect(portId, port, providerId, config, id);
         break;
         
       case 'disconnect':
@@ -373,7 +356,6 @@ async function handlePortMessage(portId, port, message) {
         break;
         
       default:
-        console.log(`[StompWorkerEnhanced] Unknown message type: ${type}`);
         port.postMessage({ 
           id, 
           type: 'error', 
@@ -391,7 +373,7 @@ async function handlePortMessage(portId, port, message) {
 }
 
 // Handle connect request
-async function handleConnect(portId, port, providerId, config) {
+async function handleConnect(portId, port, providerId, config, messageId) {
   let provider = providers.get(providerId);
   
   if (!provider) {
@@ -425,6 +407,13 @@ async function handleConnect(portId, port, providerId, config) {
       });
     }
   }
+  
+  // Send response message with the original ID to resolve the promise
+  port.postMessage({ 
+    id: messageId, 
+    type: 'response', 
+    success: true 
+  });
   
   return { success: true };
 }

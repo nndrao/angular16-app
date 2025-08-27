@@ -112,8 +112,6 @@ export class StompClientEnhancedService implements OnDestroy {
       this.port.onmessage = (event) => this.handleWorkerMessage(event.data);
       this.port.onmessageerror = (error) => this.handleWorkerError(error);
       this.port.start();
-      
-      console.log('[StompClientEnhanced] SharedWorker initialized');
     } catch (error) {
       console.error('[StompClientEnhanced] Failed to initialize SharedWorker:', error);
       this.updateClientState({ error: `Worker initialization failed: ${error}` });
@@ -150,8 +148,6 @@ export class StompClientEnhancedService implements OnDestroy {
           snapshotTimeoutMs: config.snapshotTimeoutMs || 30000
         }
       });
-      
-      console.log('[StompClientEnhanced] Connection request sent');
     } catch (error) {
       this.updateClientState({ 
         connecting: false, 
@@ -198,8 +194,6 @@ export class StompClientEnhancedService implements OnDestroy {
       await this.sendWorkerMessage('refresh', {
         providerId: this.providerId
       });
-      
-      console.log('[StompClientEnhanced] Refresh request sent');
     } catch (error) {
       console.error('[StompClientEnhanced] Refresh error:', error);
       this.error.emit(error as Error);
@@ -311,7 +305,6 @@ export class StompClientEnhancedService implements OnDestroy {
     });
     
     this.connected.emit({ clientId: message.clientId || this.providerId });
-    console.log('[StompClientEnhanced] Connected successfully');
   }
   
   private handleDisconnected(): void {
@@ -322,7 +315,6 @@ export class StompClientEnhancedService implements OnDestroy {
     });
     
     this.disconnected.emit();
-    console.log('[StompClientEnhanced] Disconnected');
   }
   
   private handleData(data: any): void {
@@ -363,8 +355,6 @@ export class StompClientEnhancedService implements OnDestroy {
     
     this.updateClientState({ mode: 'realtime' });
     this.snapshotComplete.emit(stats);
-    
-    console.log(`[StompClientEnhanced] Snapshot complete: ${stats.rowCount} rows in ${stats.duration}ms`);
   }
   
   private handleError(error: Error): void {

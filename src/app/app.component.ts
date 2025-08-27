@@ -294,20 +294,20 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(state => {
         this.stompState = state;
-        console.log('[AppComponent] STOMP state updated:', state);
+        // Only log significant state changes
+        if (state.error || (!state.connected && !state.connecting)) {
+          console.log('[AppComponent] STOMP state updated:', state);
+        }
       });
 
     // Subscribe to data events (both snapshot and real-time)
     this.stompService.data
       .pipe(takeUntil(this.destroy$))
       .subscribe(positions => {
-        console.log(`[AppComponent] Received ${positions.length} positions in ${this.stompState.mode} mode`);
-
         if (this.stompState.mode === 'snapshot') {
           // During snapshot: accumulate data, don't update grid yet
           this.snapshotData.push(...positions);
           this.statistics.snapshot.receivedRows += positions.length;
-          console.log(`[AppComponent] Snapshot data accumulated: ${this.snapshotData.length} total positions`);
         } else if (this.stompState.mode === 'realtime') {
           // Real-time updates after snapshot
           this.handleRealtimeUpdates(positions);
@@ -396,7 +396,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Set the accumulated snapshot data to grid
     if (this.gridApi && this.snapshotData.length > 0) {
-      console.log(`[AppComponent] Setting ${this.snapshotData.length} snapshot rows to grid`);
       this.rowData = [...this.snapshotData];
       
       // Clear any existing data and set new data
@@ -411,8 +410,6 @@ export class AppComponent implements OnInit, OnDestroy {
     // Clear snapshot accumulator
     this.snapshotData = [];
     this.snapshotComplete = true;
-    
-    console.log('[AppComponent] Grid ready for real-time updates');
   }
 
   // AG Grid event handlers
@@ -421,14 +418,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Auto-size columns
     this.gridApi.sizeColumnsToFit();
-
-    console.log('[AppComponent] AG Grid ready with getRowId configured for positionId');
   }
 
   // Manual connection controls
   async connectToStomp(): Promise<void> {
     try {
-      console.log('[AppComponent] Manual connection initiated');
       await this.initializeStompConnection();
     } catch (error) {
       console.error('[AppComponent] Manual connection failed:', error);
@@ -447,7 +441,6 @@ export class AppComponent implements OnInit, OnDestroy {
   flushTransactions(): void {
     if (this.gridApi) {
       this.gridApi.flushAsyncTransactions();
-      console.log('[AppComponent] Flushed all pending async transactions');
     }
   }
 
